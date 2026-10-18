@@ -176,3 +176,61 @@ When the owner requests a change, explain significant risks, implement the reque
 Build a dependable printing service platform that helps printing businesses receive orders, manage production, communicate progress, and deliver the correct products to customers on time.
 
 The initial release should solve the core order management problem well. Future features will be introduced according to actual business needs and priorities.
+
+## 13. Required Programming Stack and Architecture
+
+Use the following stack as the default for this project unless the owner explicitly approves a change:
+
+- **Backend:** PHP, using a currently supported PHP release compatible with the deployment host.
+- **Database:** MySQL or MariaDB with InnoDB tables, foreign keys, indexes, and transactions where appropriate.
+- **Frontend:** HTML5, CSS3, JavaScript, and jQuery.
+- **UI framework:** Bootstrap 5 for responsive layouts, forms, navigation, tables, and dashboards.
+- **Dependency management:** Composer for PHP libraries.
+- **Web server:** Apache for local development and compatible production hosting.
+- **Version control:** Git and GitHub.
+
+Develop locally with XAMPP if useful, but configure the production environment separately and securely. The application must be deployable to an online PHP host or VPS. Do not expose a development XAMPP server directly to the public internet.
+
+Prefer a clear, modular PHP application structure with separation between presentation, business logic, and database access. Use PDO with prepared statements for database queries. Consider Laravel if the owner approves adopting a framework; otherwise, plain PHP is acceptable when implemented with disciplined structure and security controls. Do not introduce React, Vue, Node.js, microservices, Docker, or Kubernetes unless a concrete requirement justifies the added complexity and the owner approves.
+
+Use Composer-managed, maintained libraries when useful, such as a suitable PHP PDF library for receipts, quotations, invoices, and production job sheets. Review a library's maintenance status, compatibility, license, and security before adding it. Avoid unnecessary dependencies and do not hardcode secrets or credentials in source control.
+
+## 14. Mandatory Security and Data Protection Rules
+
+Security must be considered in every feature from the beginning, not added only before deployment.
+
+1. **SQL injection:** Use PDO prepared statements for all variable database values. Do not build SQL queries by concatenating untrusted input.
+2. **Passwords:** Store passwords only using PHP's `password_hash()` and verify them with `password_verify()`. Never store plaintext passwords or reversible password values.
+3. **Authentication and sessions:** Use secure session configuration, regenerate session IDs after login or privilege changes, enforce idle/session expiration where appropriate, and protect login forms against brute-force attempts with rate limiting and safe error messages.
+4. **Authorization:** Enforce role-based permissions on the server for every protected operation. Hiding a button in the interface is not authorization. Customers must only access their own orders and files.
+5. **CSRF:** Protect state-changing browser requests with validated CSRF tokens.
+6. **XSS and output encoding:** Escape output according to its context. Do not trust customer names, order notes, uploaded filenames, or other user-controlled content as HTML or JavaScript.
+7. **Input validation:** Validate and normalize all data on the server, including order specifications, quantities, prices, IDs, file metadata, and status transitions. Client-side validation is only a convenience.
+8. **File uploads:** Allow only necessary file types and reasonable size limits; validate content rather than trusting extensions or browser MIME types; generate safe server-side filenames; prevent executable uploads; store files outside the public web root where practical; enforce access checks on downloads; and consider malware scanning.
+9. **Transport security:** Use HTTPS/TLS in production, redirect HTTP to HTTPS, and configure secure cookies and appropriate security headers.
+10. **Secrets and configuration:** Keep database passwords, API keys, and other secrets outside tracked source files, using environment variables or protected server configuration. Provide a safe example configuration without real credentials.
+11. **Database integrity:** Use foreign keys, constraints, transactions, and appropriate indexes. Apply schema changes through reviewed, documented migrations or update scripts. Back up data before destructive changes.
+12. **Backups and recovery:** Establish automated backups, protect backup access, and periodically test restoration.
+13. **Audit trail:** Record important actions such as order status changes, price/payment changes, administrative actions, and relevant access events. Include actor, time, and affected record; do not log passwords, session tokens, or unnecessary sensitive data.
+14. **Errors and logging:** Show users safe error messages; keep technical details in protected logs. Never display stack traces, SQL errors, secrets, or internal paths to public users.
+15. **Production configuration:** Disable debug output and directory listing, remove installation/test utilities after use, restrict database and server access, keep PHP and dependencies patched, and apply least privilege.
+16. **Payments:** If online payments are added, use a reputable payment provider and do not store raw card numbers or security codes.
+17. **Testing:** Test authentication, permissions, input validation, upload restrictions, CSRF protection, order workflows, and regression behavior before release. Review dependencies for known vulnerabilities.
+18. **Privacy:** Collect only information needed for the service, limit access, and define reasonable retention and deletion practices.
+
+Never claim the application is completely secure. Describe security controls that have actually been implemented and tested, and identify remaining risks before deployment.
+
+## 15. Mandatory Development and Deployment Workflow
+
+For each change:
+
+1. Inspect the current repository, relevant files, database schema, and existing behavior before editing.
+2. Follow the approved programming stack and preserve working functionality.
+3. Make focused changes rather than rewriting unrelated parts of the system.
+4. Avoid destructive database or file operations without explicit owner approval and a verified backup.
+5. Add or update migrations and documentation when the schema or deployment process changes.
+6. Test the change and relevant neighboring workflows where possible; report what was tested and what was not.
+7. Never commit credentials, private customer data, production database dumps, or uploaded customer artwork.
+8. Before online deployment, verify HTTPS, production configuration, least-privilege database access, backups and restoration, error handling, access control, and removal of development tools.
+
+If a requested change conflicts with these rules, explain the risk and propose a safer implementation before proceeding.
